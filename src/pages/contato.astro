@@ -1,0 +1,190 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Cabecalho from "../components/Cabecalho.astro";
+import Rodape from "../components/Rodape.astro";
+import { site, base } from "../data/site";
+import { Phone, Mail, MapPin, Clock, MessageCircle, Send } from "@lucide/astro";
+
+const formAtivo = Boolean(site.formularioAction);
+---
+
+<Layout titulo={`Contato | ${site.nomeCompleto}`} descricao={site.descricao}>
+  <Cabecalho />
+
+  <main class="bg-bg min-h-screen pt-24 md:pt-28 pb-16">
+    <div class="max-w-[1400px] mx-auto px-5 md:px-10">
+      <!-- Cabeçalho -->
+      <div class="text-center py-10 md:py-14">
+        <span class="font-heading font-bold text-primary uppercase tracking-[0.3em] text-xs md:text-sm">
+          Fale conosco
+        </span>
+        <h1 class="font-heading font-extrabold text-4xl md:text-5xl text-ink mt-3">
+          Entre em Contato
+        </h1>
+        <p class="text-muted mt-4 max-w-2xl mx-auto">
+          Tire dúvidas, peça orçamentos ou fale com um de nossos atendentes.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+        <!-- Coluna de informações -->
+        <div class="lg:col-span-5 space-y-5">
+          <a
+            href={site.whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-start gap-4 bg-card rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all"
+          >
+            <span class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <MessageCircle class="w-5 h-5" />
+            </span>
+            <div>
+              <h3 class="font-heading font-bold text-ink">WhatsApp</h3>
+              <p class="text-sm text-muted mt-0.5">{site.telefone}</p>
+            </div>
+          </a>
+
+          <div class="flex items-start gap-4 bg-card rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <span class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <Mail class="w-5 h-5" />
+            </span>
+            <div>
+              <h3 class="font-heading font-bold text-ink">E-mail</h3>
+              <p class="text-sm text-muted mt-0.5">{site.email}</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4 bg-card rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <span class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <MapPin class="w-5 h-5" />
+            </span>
+            <div>
+              <h3 class="font-heading font-bold text-ink">Endereço</h3>
+              <p class="text-sm text-muted mt-0.5 leading-relaxed">
+                {site.endereco.logradouro}
+                <br />
+                {site.endereco.complemento}
+                <br />
+                {site.endereco.cidade}
+              </p>
+              <a
+                href={site.mapaRotaUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-xs font-heading font-bold uppercase tracking-wider text-primary hover:text-primary-hover mt-2 inline-block"
+              >
+                Como chegar
+              </a>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4 bg-card rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <span class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <Clock class="w-5 h-5" />
+            </span>
+            <div>
+              <h3 class="font-heading font-bold text-ink">Horário de Atendimento</h3>
+              <p class="text-sm text-muted mt-0.5">Segunda a sexta, das 8h às 18h</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna do formulário / mapa -->
+        <div class="lg:col-span-7">
+          {
+            formAtivo ? (
+              <form
+                action={site.formularioAction}
+                method="POST"
+                class="bg-card rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100"
+              >
+                <h2 class="font-heading font-extrabold text-2xl text-ink mb-6">
+                  Envie uma mensagem
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <label class="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-widest text-muted">
+                    Nome
+                    <input
+                      type="text"
+                      name="nome"
+                      required
+                      class="bg-bg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl px-4 py-3 text-sm text-ink font-semibold outline-none transition-all"
+                    />
+                  </label>
+
+                  <label class="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-widest text-muted">
+                    E-mail
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      class="bg-bg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl px-4 py-3 text-sm text-ink font-semibold outline-none transition-all"
+                    />
+                  </label>
+                </div>
+
+                <label class="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-widest text-muted mt-5">
+                  Mensagem
+                  <textarea
+                    name="mensagem"
+                    rows="5"
+                    required
+                    class="bg-bg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl px-4 py-3 text-sm text-ink font-semibold outline-none transition-all resize-none"
+                  >
+                  </textarea>
+                </label>
+
+                <button
+                  type="submit"
+                  class="mt-6 inline-flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-hover text-white font-heading font-bold text-sm px-8 py-4 rounded-xl uppercase tracking-wide transition-all hover:-translate-y-0.5 shadow-md"
+                >
+                  <Send class="w-5 h-5" />
+                  Enviar mensagem
+                </button>
+              </form>
+            ) : (
+              <div class="bg-card rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100">
+                <h2 class="font-heading font-extrabold text-2xl text-ink mb-4">
+                  Prefere falar pelo WhatsApp?
+                </h2>
+                <p class="text-muted leading-relaxed">
+                  Nosso atendimento pelo WhatsApp é rápido e direto. Clique no
+                  botão abaixo e fale com a gente agora mesmo.
+                </p>
+                <a
+                  href={site.whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="mt-6 inline-flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-hover text-white font-heading font-bold text-sm px-8 py-4 rounded-xl uppercase tracking-wide transition-all hover:-translate-y-0.5 shadow-md"
+                >
+                  <MessageCircle class="w-5 h-5" />
+                  Chamar no WhatsApp
+                </a>
+                <p class="text-xs text-muted mt-6">
+                  Dica: para ativar o formulário, preencha{" "}
+                  <code class="bg-bg px-1.5 py-0.5 rounded">site.formularioAction</code>{" "}
+                  em src/data/site.ts com o endpoint de recebimento.
+                </p>
+              </div>
+            )
+          }
+
+          <!-- Mapa -->
+          <div class="mt-6 rounded-3xl overflow-hidden shadow-sm border border-gray-100">
+            <iframe
+              src={site.mapaEmbedUrl}
+              title={`Mapa - ${site.nomeCompleto}`}
+              class="w-full h-[320px] border-0"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            >
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Rodape />
+</Layout>

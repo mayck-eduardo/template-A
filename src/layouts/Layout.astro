@@ -1,0 +1,107 @@
+---
+import "../styles/global.css";
+import Lightbox from "../components/Lightbox.astro";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/500.css";
+import "@fontsource/inter/600.css";
+import "@fontsource/outfit/500.css";
+import "@fontsource/outfit/700.css";
+import { site, base } from "../data/site";
+import { ClientRouter } from "astro:transitions";
+
+export interface Props {
+  titulo?: string;
+  descricao?: string;
+}
+
+const { titulo = `${site.nomeCompleto} | ${site.slogan}`, descricao = site.descricao } = Astro.props;
+
+const urlCanonica = new URL(Astro.url.pathname, site.url).toString();
+const urlImagemOg = new URL(
+  site.imagemOg.replace(/^\//, ""),
+  `${site.url}${base}`,
+).toString();
+
+const jsonLdOrganizacao = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: site.nomeCompleto,
+  url: site.url,
+  email: site.email,
+  telephone: site.telefone,
+  sameAs: site.redesSociais.map((r) => r.url),
+};
+---
+
+<!doctype html>
+<html lang="pt-BR" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{titulo}</title>
+    <meta name="description" content={descricao} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="canonical" href={urlCanonica} />
+
+    <!-- Open Graph / Redes sociais -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.nomeCompleto} />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descricao} />
+    <meta property="og:image" content={urlImagemOg} />
+    <meta property="og:url" content={urlCanonica} />
+    <meta property="og:locale" content="pt_BR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={titulo} />
+    <meta name="twitter:description" content={descricao} />
+    <meta name="twitter:image" content={urlImagemOg} />
+
+    <!-- Dados estruturados: Organização -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdOrganizacao)} />
+
+    <ClientRouter />
+
+    <!-- Tema vindo de src/data/site.ts (sobrescreve os --dg-* do global.css) -->
+    <style is:inline>
+      :root {
+        --dg-primary: {site.theme.primary};
+        --dg-primary-hover: {site.theme.primaryHover};
+        --dg-accent: {site.theme.accent};
+        --dg-dark: {site.theme.dark};
+        --dg-bg: {site.theme.bg};
+        --dg-card: {site.theme.card};
+      }
+    </style>
+  </head>
+  <body class="font-body text-ink bg-bg antialiased overflow-x-hidden">
+    <div transition:animate="fade">
+      <slot />
+    </div>
+    <Lightbox />
+
+    <script>
+      document.documentElement.classList.add("js");
+
+      function initReveal() {
+        const targets = document.querySelectorAll<HTMLElement>(".reveal");
+        if (targets.length === 0) return;
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            }
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+        );
+        targets.forEach((el) => observer.observe(el));
+      }
+
+      // Roda no load inicial e em toda navegação (View Transitions)
+      document.addEventListener("astro:page-load", initReveal);
+    </script>
+  </body>
+</html>

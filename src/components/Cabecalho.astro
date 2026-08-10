@@ -1,0 +1,141 @@
+---
+import { site, base } from "../data/site";
+import { Menu, MessageCircle } from "@lucide/astro";
+
+const pathname = Astro.url.pathname;
+
+const navegacao = site.navegacao.map((item) => ({
+  label: item.label,
+  href: `${base}${item.href}`,
+}));
+---
+
+<header class="fixed top-0 left-0 w-full z-50 bg-dark/90 backdrop-blur-md py-3 md:py-4 border-b border-white/10 shadow-lg">
+  <div
+    class="max-w-[1680px] mx-auto px-4 sm:px-5 md:px-10 xl:px-16 flex items-center justify-between gap-3"
+  >
+    <a href={base} class="flex items-center flex-shrink-0">
+      <img
+        src={`${base}${site.logo.replace(/^\//, "")}`}
+        alt={site.nomeCompleto}
+        class="h-10 md:h-12 w-auto"
+      />
+    </a>
+
+    <ul
+      class="hidden md:flex items-center gap-6 lg:gap-10 text-white font-heading font-bold text-xs lg:text-[13px] tracking-wider"
+    >
+      {
+        navegacao.map((item) => {
+          const isCurrent =
+            pathname === item.href ||
+            (item.href !== base && pathname.startsWith(item.href));
+          return (
+            <li>
+              <a
+                href={item.href}
+                class:list={[
+                  "transition-colors duration-200 relative py-1",
+                  isCurrent
+                    ? "text-primary after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-primary"
+                    : "text-gray-300 hover:text-primary",
+                ]}
+              >
+                {item.label}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    <a
+      href={site.whatsappUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="hidden lg:inline-flex items-center gap-2.5 bg-primary hover:bg-primary-hover text-white font-heading font-bold text-xs px-5 py-3 rounded-md uppercase tracking-wide transition-all hover:-translate-y-0.5 shadow-md"
+    >
+      <MessageCircle class="w-[18px] h-[18px]" />
+      Fale Conosco
+    </a>
+
+    <button
+      id="btn-mobile-menu"
+      class="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+      aria-label="Abrir Menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <Menu class="w-7 h-7" />
+    </button>
+  </div>
+
+  <div
+    id="mobile-menu"
+    class="hidden md:hidden bg-dark/95 border-b border-white/10 px-5 py-5 max-h-[calc(100vh-4rem)] overflow-y-auto"
+  >
+    <ul
+      class="flex flex-col gap-4 text-white font-heading font-bold text-base tracking-wider mb-6"
+      id="mobile-menu-links"
+    >
+      {
+        navegacao.map((item) => (
+          <li>
+            <a href={item.href} class="block py-2 text-gray-200 hover:text-primary transition-colors">
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <a
+      href={site.whatsappUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-hover text-white font-heading font-bold text-sm px-6 py-3.5 rounded-md uppercase tracking-wide w-full"
+    >
+      <MessageCircle class="w-[18px] h-[18px]" />
+      Fale Conosco
+    </a>
+  </div>
+</header>
+
+<script>
+  let btnMobile: HTMLButtonElement | null = null;
+  let menuMobile: HTMLElement | null = null;
+
+  function abrirMenu() {
+    if (!btnMobile || !menuMobile) return;
+    menuMobile.classList.remove("hidden");
+    btnMobile.setAttribute("aria-expanded", "true");
+    btnMobile.setAttribute("aria-label", "Fechar Menu");
+  }
+
+  function fecharMenu() {
+    if (!btnMobile || !menuMobile) return;
+    menuMobile.classList.add("hidden");
+    btnMobile.setAttribute("aria-expanded", "false");
+    btnMobile.setAttribute("aria-label", "Abrir Menu");
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") fecharMenu();
+  });
+
+  function inicializarMenu() {
+    btnMobile = document.getElementById("btn-mobile-menu") as HTMLButtonElement | null;
+    menuMobile = document.getElementById("mobile-menu");
+
+    if (!btnMobile || !menuMobile) return;
+
+    btnMobile.addEventListener("click", () => {
+      menuMobile?.classList.contains("hidden") ? abrirMenu() : fecharMenu();
+    });
+
+    document
+      .querySelectorAll("#mobile-menu-links a")
+      .forEach((link) => link.addEventListener("click", fecharMenu));
+  }
+
+  document.addEventListener("astro:page-load", inicializarMenu);
+</script>

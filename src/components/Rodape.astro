@@ -1,0 +1,103 @@
+---
+import { site, base } from "../data/site";
+import { Phone, Mail, MapPin, MessageCircle } from "@lucide/astro";
+
+const navegacao = site.navegacao.map((item) => ({
+  label: item.label,
+  href: `${base}${item.href}`,
+}));
+---
+
+<footer class="bg-dark text-gray-300 pt-16">
+  <div
+    class="max-w-[1680px] mx-auto px-5 md:px-10 xl:px-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-16 pb-12 border-b border-white/10"
+  >
+    <div class="flex flex-col gap-3">
+      <img
+        src={`${base}${site.logoRodape.replace(/^\//, "")}`}
+        alt={site.nomeCompleto}
+        class="w-40"
+      />
+      <p class="text-sm text-gray-400 leading-relaxed">{site.descricao}</p>
+    </div>
+
+    <div>
+      <h4 class="font-heading font-bold text-sm uppercase tracking-wider text-white mb-4">
+        Navegação
+      </h4>
+      <ul class="flex flex-col gap-2.5 text-sm">
+        {
+          navegacao.map((nav) => (
+            <li>
+              <a href={nav.href} class="hover:text-primary transition-colors">
+                {nav.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h4 class="font-heading font-bold text-sm uppercase tracking-wider text-white mb-4">
+        Redes Sociais
+      </h4>
+      <ul class="flex flex-col gap-2.5 text-sm">
+        {
+          site.redesSociais.map((soc) => (
+            <li>
+              <a
+                href={soc.url}
+                target={soc.url.startsWith("http") ? "_blank" : undefined}
+                rel={soc.url.startsWith("http") ? "noopener noreferrer" : undefined}
+                class="inline-flex items-center gap-2.5 text-gray-400 hover:text-primary transition-colors"
+              >
+                <img
+                  src={`${base}${soc.iconSrc.replace(/^\//, "")}`}
+                  alt={soc.nome}
+                  class="w-4 h-4"
+                />
+                {soc.nome}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h4 class="font-heading font-bold text-sm uppercase tracking-wider text-white mb-4">
+        Contato
+      </h4>
+      <ul class="flex flex-col gap-3 text-sm">
+        <li class="flex items-center gap-2.5">
+          <MessageCircle class="w-4 h-4 text-primary shrink-0" />
+          <span>{site.telefone}</span>
+        </li>
+        <li class="flex items-center gap-2.5">
+          <Mail class="w-4 h-4 text-primary shrink-0" />
+          <span>{site.email}</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <MapPin class="w-4 h-4 text-primary shrink-0 mt-0.5" />
+          <span>
+            {site.endereco.logradouro}
+            <br />
+            {site.endereco.complemento}
+            <br />
+            {site.endereco.cidade}
+          </span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="max-w-[1680px] mx-auto px-5 md:px-10 xl:px-16 py-6 text-center text-xs text-gray-500">
+    <p>
+      &copy; {new Date().getFullYear()} {site.nomeCompleto}. Criado e desenvolvido por{" "}
+      <a href="https://gdvirtual.com.br" target="_blank" class="hover:text-primary">
+        GD Virtual.
+      </a>
+    </p>
+  </div>
+</footer>

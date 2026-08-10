@@ -1,0 +1,92 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Cabecalho from "../components/Cabecalho.astro";
+import Rodape from "../components/Rodape.astro";
+import Hero from "../components/Hero.astro";
+import CardProduto from "../components/CardProduto.astro";
+import { base } from "../data/site";
+import { categorias } from "../data/categorias";
+import { produtos } from "../data/produtos";
+import { ArrowRight } from "@lucide/astro";
+
+const destaques = [...produtos]
+  .sort((a, b) => (a.ordem ?? 999) - (b.ordem ?? 999))
+  .slice(0, 4);
+---
+
+<Layout>
+  <Cabecalho />
+
+  <main class="pt-16 md:pt-20">
+    <Hero />
+
+    <!-- Categorias / Linhas -->
+    <section class="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
+      <div class="text-center mb-12">
+        <span class="font-heading font-bold text-primary uppercase tracking-[0.3em] text-xs md:text-sm">
+          Nossas Linhas
+        </span>
+        <h2 class="font-heading font-extrabold text-3xl md:text-4xl text-ink mt-3">
+          Conheça as Categorias
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {
+          categorias.map((cat) => (
+            <a
+              href={`${base}produtos#${cat.id}`}
+              class="group relative rounded-2xl overflow-hidden bg-dark aspect-[16/10] flex items-end shadow-md hover:shadow-xl transition-shadow"
+            >
+              <img
+                src={`${base}${cat.imagem.replace(/^\//, "")}`}
+                alt={cat.nome}
+                loading="lazy"
+                class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-50 transition-opacity duration-500"
+              />
+              <div class="relative p-6 text-white">
+                <h3 class="font-heading font-extrabold text-xl group-hover:text-primary transition-colors">
+                  {cat.nome}
+                </h3>
+                <p class="text-sm text-gray-300 mt-1 line-clamp-2">{cat.descricao}</p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Produtos em destaque -->
+    {
+      destaques.length > 0 && (
+        <section class="bg-card border-y border-gray-200/60 py-16 md:py-24">
+          <div class="max-w-[1400px] mx-auto px-5 md:px-10">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+              <div>
+                <span class="font-heading font-bold text-primary uppercase tracking-[0.3em] text-xs md:text-sm">
+                  Catálogo
+                </span>
+                <h2 class="font-heading font-extrabold text-3xl md:text-4xl text-ink mt-3">
+                  Produtos em Destaque
+                </h2>
+              </div>
+              <a
+                href={`${base}produtos`}
+                class="inline-flex items-center gap-2 font-heading font-bold text-sm uppercase tracking-wider text-primary hover:text-primary-hover transition-colors"
+              >
+                Ver todos
+                <ArrowRight class="w-4 h-4" />
+              </a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {destaques.map((p) => <CardProduto produto={p} />)}
+            </div>
+          </div>
+        </section>
+      )
+    }
+  </main>
+
+  <Rodape />
+</Layout>

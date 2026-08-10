@@ -1,0 +1,49 @@
+---
+import { site, base } from "../data/site";
+import { ArrowRight, MessageCircle } from "@lucide/astro";
+
+const temImagemHero = Boolean(site.imagemHero);
+const srcHero = temImagemHero ? `${base}${site.imagemHero.replace(/^\//, "")}` : "";
+---
+
+<section class="relative bg-dark text-white overflow-hidden">
+  {
+    temImagemHero && (
+      <div class="absolute inset-0 opacity-25">
+        <img src={srcHero} alt="" class="w-full h-full object-cover" loading="eager" />
+      </div>
+    )
+  }
+
+  <div class="relative max-w-[1400px] mx-auto px-5 md:px-10 pt-36 md:pt-48 pb-20 md:pb-28 text-center">
+    <span class="font-heading font-bold text-primary uppercase tracking-[0.35em] text-xs md:text-sm">
+      {site.nome}
+    </span>
+    <h1 class="font-heading font-extrabold text-4xl md:text-6xl mt-5 leading-tight">
+      {site.nomeCompleto}
+    </h1>
+    <p class="text-lg md:text-2xl text-gray-200 mt-5 max-w-2xl mx-auto font-medium">
+      {site.slogan}
+    </p>
+    <p class="text-gray-400 mt-6 max-w-3xl mx-auto leading-relaxed">
+      {site.descricao}
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mt-10">
+      <a
+        href={`${base}produtos`}
+        class="inline-flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-hover text-white font-heading font-bold text-sm px-8 py-4 rounded-md uppercase tracking-wide transition-all hover:-translate-y-0.5 shadow-lg"
+      >
+        Ver Produtos
+        <ArrowRight class="w-5 h-5" />
+      </a>
+      <a
+        href={`${base}contato`}
+        class="inline-flex items-center justify-center gap-2.5 border-2 border-white/25 hover:border-primary hover:text-primary text-white font-heading font-bold text-sm px-8 py-4 rounded-md uppercase tracking-wide transition-all"
+      >
+        <MessageCircle class="w-5 h-5" />
+        Fale Conosco
+      </a>
+    </div>
+  </div>
+</section>

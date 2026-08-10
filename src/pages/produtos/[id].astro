@@ -1,0 +1,210 @@
+---
+// Página de detalhe do produto: gera uma página estática por item
+// de src/data/produtos.ts (ex.: /produtos/produto-1) com SEO (JSON-LD),
+// ficha técnica, galeria, PDF e cotação via WhatsApp.
+import Layout from "../../layouts/Layout.astro";
+import Cabecalho from "../../components/Cabecalho.astro";
+import Rodape from "../../components/Rodape.astro";
+import { produtos } from "../../data/produtos";
+import { categorias } from "../../data/categorias";
+import { site, base } from "../../data/site";
+import type { Produto } from "../../types";
+import { ArrowLeft, FileText, MessageCircle } from "@lucide/astro";
+
+export function getStaticPaths() {
+  return produtos.map((produto) => ({
+    params: { id: produto.id },
+    props: { produto },
+  }));
+}
+
+const { produto } = Astro.props as { produto: Produto };
+
+const categoria = categorias.find((c) => c.id === produto.categoria);
+const galeria = produto.galeria ?? [];
+
+const urlProduto = new URL(`${base}produtos/${produto.id}`, site.url).toString();
+const urlAbsolutaImagem = (caminho: string) =>
+  new URL(caminho.replace(/^\//, ""), `${site.url}${base}`).toString();
+
+const urlWhatsapp = `${site.whatsappUrl}?text=${encodeURIComponent(
+  `Olá, tenho interesse no produto: ${produto.nome}.`,
+)}`;
+
+const srcImagem = `${base}${produto.imagem.replace(/^\//, "")}`;
+
+const jsonLdProduto = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: produto.nome,
+  description: produto.subtitulo,
+  image: [urlAbsolutaImagem(produto.imagem)].concat(
+    galeria.map((img) => urlAbsolutaImagem(img)),
+  ),
+  brand: { "@type": "Brand", name: site.nomeCompleto },
+  url: urlProduto,
+  offers: {
+    "@type": "Offer",
+    url: urlProduto,
+    availability: "https://schema.org/InStock",
+    itemCondition: "https://schema.org/NewCondition",
+  },
+};
+---
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdProduto)} />
+
+<Layout titulo={`${produto.nome} | ${site.nomeCompleto}`} descricao={produto.subtitulo}>
+  <Cabecalho />
+
+  <main class="bg-bg min-h-screen pt-24 md:pt-28 pb-16">
+    <div class="max-w-[1400px] mx-auto px-5 md:px-10">
+      <!-- Breadcrumb / Voltar -->
+      <div class="flex items-center justify-between py-4 mb-6 border-b border-gray-200">
+        <a
+          href={`${base}produtos`}
+          class="inline-flex items-center gap-2 text-muted hover:text-primary font-heading font-bold text-sm uppercase tracking-wider transition-colors"
+        >
+          <ArrowLeft class="w-4 h-4" />
+          Voltar
+        </a>
+        {
+          categoria && (
+            <div class="text-xs text-muted font-medium">
+              Categoria:
+              <span class="font-bold text-primary uppercase">{categoria.nome}</span>
+            </div>
+          )
+        }
+      </div>
+
+      <!-- Ficha do produto -->
+      <div class="bg-card rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100 grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 mb-12">
+        <!-- Imagem principal + galeria -->
+        <div class="lg:col-span-5">
+          <a href={srcImagem} title={produto.nome} class="block cursor-zoom-in">
+            <img
+              src={srcImagem}
+              alt={produto.nome}
+              loading="eager"
+              class="w-full aspect-[4/3] object-cover rounded-2xl bg-gray-100 shadow-md"
+            />
+          </a>
+
+          {
+            galeria.length > 0 && (
+              <div class="mt-4">
+                <span class="block text-xs font-heading font-bold uppercase tracking-widest text-muted mb-3">
+                  Galeria de Fotos
+                </span>
+                <div class="grid grid-cols-4 gap-3">
+                  {galeria.map((src, idx) => (
+                    <a
+                      href={`${base}${src.replace(/^\//, "")}`}
+                      title={`${produto.nome} - detalhe ${idx + 1}`}
+                      class="block aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 cursor-zoom-in"
+                    >
+                      <img
+                        src={`${base}${src.replace(/^\//, "")}`}
+                        alt={`${produto.nome} - detalhe ${idx + 1}`}
+                        loading="lazy"
+                        class="w-full h-full object-cover hover:opacity-80 transition-opacity"
+                      />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )
+          }
+
+          <a
+            href={`${base}${produto.pdfUrl.replace(/^\//, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full inline-flex items-center justify-center gap-2.5 mt-6 bg-red-50 hover:bg-red-100 text-red-700 font-heading font-bold text-xs md:text-sm px-5 py-3.5 rounded-xl border border-red-200 transition-all uppercase tracking-wider"
+          >
+            <FileText class="w-5 h-5 text-red-600" />
+            Ver ficha técnica (PDF)
+          </a>
+        </div>
+
+        <!-- Descrição + especificações -->
+        <div class="lg:col-span-7 flex flex-col">
+          <span class="font-heading font-bold text-primary uppercase tracking-[0.25em] text-xs block mb-2">
+            {site.nomeCompleto}
+          </span>
+          <h1 class="font-heading font-extrabold text-3xl md:text-4xl text-ink mb-2">
+            {produto.nome}
+          </h1>
+          <p class="text-muted text-base md:text-lg font-medium leading-snug mb-6">
+            {produto.subtitulo}
+          </p>
+
+          <div class="bg-gray-50 rounded-2xl p-5 md:p-6 mb-6 border border-gray-100">
+            <h3 class="font-heading font-bold text-sm uppercase tracking-wider text-ink mb-4">
+              Especificações técnicas
+            </h3>
+            <ul class="space-y-2.5">
+              {
+                produto.descricaoTecnica.map((item) => (
+                  <li class="flex items-start gap-3 text-sm md:text-base leading-snug">
+                    <span class="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          {
+            produto.opcionais.length > 0 && (
+              <div class="bg-amber-50/60 rounded-2xl p-5 md:p-6 mb-8 border border-amber-100">
+                <h4 class="font-heading font-bold text-sm uppercase tracking-wider text-amber-900 mb-4">
+                  Itens opcionais
+                </h4>
+                <ul class="space-y-2.5">
+                  {produto.opcionais.map((item) => (
+                    <li class="flex items-start gap-3 text-sm md:text-base text-amber-950/90 leading-snug">
+                      <span class="text-amber-700 font-bold shrink-0">+</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+
+          <div class="pt-6 border-t border-gray-100 mt-auto">
+            <a
+              href={urlWhatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="w-full inline-flex items-center justify-center gap-3 bg-primary hover:bg-primary-hover text-white font-heading font-bold text-sm md:text-base px-6 py-4 rounded-xl uppercase tracking-wider transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+            >
+              <MessageCircle class="w-5 h-5" />
+              Solicitar orçamento
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA final -->
+      <div class="bg-dark rounded-3xl p-8 md:p-12 text-center border border-gray-800">
+        <h3 class="font-heading font-bold text-2xl md:text-3xl text-white mb-3 uppercase tracking-wide">
+          Confira todos os produtos
+        </h3>
+        <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto mb-6">
+          Conheça a linha completa de {site.nome.toLowerCase()} disponível em nosso catálogo.
+        </p>
+        <a
+          href={`${base}produtos`}
+          class="inline-flex items-center justify-center bg-primary hover:bg-primary-hover text-white font-heading font-bold text-xs md:text-sm px-8 py-4 rounded-xl uppercase tracking-wider transition-all shadow-md"
+        >
+          Ver todos os produtos
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <Rodape />
+</Layout>

@@ -1,0 +1,62 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Cabecalho from "../components/Cabecalho.astro";
+import Rodape from "../components/Rodape.astro";
+import { site, base } from "../data/site";
+import { ArrowRight, MessageCircle } from "@lucide/astro";
+---
+
+<Layout titulo={`A Empresa | ${site.nomeCompleto}`} descricao={site.descricao}>
+  <Cabecalho />
+
+  <main class="bg-bg min-h-screen pt-24 md:pt-28 pb-16">
+    <div class="max-w-[1400px] mx-auto px-5 md:px-10">
+      <!-- Cabeçalho da página -->
+      <div class="bg-dark rounded-3xl px-6 py-14 md:py-20 text-center text-white mb-14">
+        <span class="font-heading font-bold text-primary uppercase tracking-[0.3em] text-xs md:text-sm">
+          Sobre nós
+        </span>
+        <h1 class="font-heading font-extrabold text-4xl md:text-5xl mt-4">
+          {site.nomeCompleto}
+        </h1>
+        <p class="text-gray-300 mt-4 max-w-2xl mx-auto">{site.slogan}</p>
+      </div>
+
+      <!-- Texto institucional (edite o conteúdo conforme o cliente) -->
+      <section class="max-w-4xl mx-auto space-y-6 text-gray-700 leading-relaxed">
+        <p>
+          Substitua este parágrafo pela história da empresa. Conte como ela
+          começou, há quanto tempo existe e o que a diferencia no mercado.
+        </p>
+        <p>
+          O segundo parágrafo pode destacar missão, valores e a experiência da
+          equipe, reforçando por que o cliente deve escolher a marca.
+        </p>
+        <p>
+          Use a página para gerar confiança: números (anos no mercado, clientes
+          atendidos, capacidade de produção) ajudam muito na conversão.
+        </p>
+      </section>
+
+      <!-- Chamada para ação -->
+      <div class="flex flex-col sm:flex-row justify-center gap-4 mt-12">
+        <a
+          href={`${base}produtos`}
+          class="inline-flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-hover text-white font-heading font-bold text-sm px-8 py-4 rounded-md uppercase tracking-wide transition-all hover:-translate-y-0.5 shadow-md"
+        >
+          Ver produtos
+          <ArrowRight class="w-5 h-5" />
+        </a>
+        <a
+          href={`${base}contato`}
+          class="inline-flex items-center justify-center gap-2.5 border-2 border-gray-300 hover:border-primary hover:text-primary text-ink font-heading font-bold text-sm px-8 py-4 rounded-md uppercase tracking-wide transition-all"
+        >
+          <MessageCircle class="w-5 h-5" />
+          Fale conosco
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <Rodape />
+</Layout>

@@ -1,0 +1,54 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Cabecalho from "../components/Cabecalho.astro";
+import Rodape from "../components/Rodape.astro";
+import CardProduto from "../components/CardProduto.astro";
+import { site } from "../data/site";
+import { categorias } from "../data/categorias";
+import { produtos } from "../data/produtos";
+
+const ordenados = [...produtos].sort(
+  (a, b) => (a.ordem ?? 999) - (b.ordem ?? 999),
+);
+---
+
+<Layout titulo={`Produtos | ${site.nomeCompleto}`} descricao={site.descricao}>
+  <Cabecalho />
+
+  <main class="bg-bg min-h-screen pt-24 md:pt-28 pb-16">
+    <div class="max-w-[1400px] mx-auto px-5 md:px-10">
+      <div class="py-8 md:py-10 text-center">
+        <span class="font-heading font-bold text-primary uppercase tracking-[0.3em] text-xs md:text-sm">
+          Catálogo
+        </span>
+        <h1 class="font-heading font-extrabold text-4xl md:text-5xl text-ink mt-3">
+          Nossos Produtos
+        </h1>
+      </div>
+
+      {
+        categorias.map((cat) => {
+          const items = ordenados.filter((p) => p.categoria === cat.id);
+          if (items.length === 0) return null;
+
+          return (
+            <section id={cat.id} class="mb-16 scroll-mt-28">
+              <div class="border-b border-gray-200/70 pb-4 mb-8">
+                <h2 class="font-heading font-extrabold text-2xl md:text-3xl text-ink">
+                  {cat.nome}
+                </h2>
+                <p class="text-muted mt-2 max-w-3xl">{cat.descricao}</p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {items.map((p) => <CardProduto produto={p} />)}
+              </div>
+            </section>
+          );
+        })
+      }
+    </div>
+  </main>
+
+  <Rodape />
+</Layout>

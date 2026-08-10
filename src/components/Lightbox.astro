@@ -1,0 +1,166 @@
+---
+// Lightbox global: amplia qualquer imagem que for um link direto
+// (ex.: <a href="foto.jpg">). Basta estar incluído no Layout.
+import { X, Loader2 } from "@lucide/astro";
+---
+
+<div
+  id="lightbox-modal"
+  class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-4 md:p-8 select-none"
+  aria-modal="true"
+  role="dialog"
+  aria-label="Ampliação de imagem"
+>
+  <div
+    id="lightbox-backdrop"
+    class="absolute inset-0 w-full h-full cursor-pointer"
+    title="Clique para fechar"
+  >
+  </div>
+
+  <div class="absolute top-4 right-4 md:top-6 md:right-6 z-10 pointer-events-none">
+    <button
+      id="lightbox-close"
+      class="bg-black/50 hover:bg-primary text-white border border-white/20 p-3 rounded-full transition-all duration-200 pointer-events-auto shadow-lg active:scale-95 cursor-pointer flex items-center justify-center group"
+      aria-label="Fechar ampliação"
+      title="Fechar (Esc)"
+    >
+      <X class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+    </button>
+  </div>
+
+  <div
+    class="relative z-10 flex flex-col items-center justify-center max-w-5xl max-h-[85vh] w-full pointer-events-none"
+  >
+    <div
+      id="lightbox-loader"
+      class="absolute inset-0 flex items-center justify-center text-accent transition-opacity duration-200 pointer-events-none opacity-0"
+    >
+      <Loader2 class="w-10 h-10 animate-spin" />
+    </div>
+
+    <img
+      id="lightbox-img"
+      src=""
+      alt=""
+      class="max-h-[70vh] md:max-h-[75vh] max-w-[85vw] object-contain rounded-2xl shadow-2xl border border-white/15 transition-all duration-300 scale-95 opacity-0 pointer-events-auto cursor-default bg-white/5"
+    />
+
+    <div
+      id="lightbox-caption"
+      class="mt-3 bg-black/80 backdrop-blur-md border border-white/15 px-5 py-2.5 rounded-xl text-white font-semibold text-sm md:text-base shadow-xl max-w-lg text-center transition-all duration-300 opacity-0 transform translate-y-2 pointer-events-auto"
+    >
+    </div>
+  </div>
+</div>
+
+<script>
+  function initLightbox() {
+    const modal = document.getElementById("lightbox-modal");
+    const backdrop = document.getElementById("lightbox-backdrop");
+    const closeBtn = document.getElementById("lightbox-close");
+    const loader = document.getElementById("lightbox-loader");
+    const img = document.getElementById("lightbox-img") as HTMLImageElement;
+    const caption = document.getElementById("lightbox-caption");
+
+    if (!modal || !img || !caption || !loader) return;
+
+    function openModal(href: string, desc: string) {
+      modal?.classList.remove("pointer-events-none", "opacity-0");
+      modal?.classList.add("pointer-events-auto", "opacity-100");
+      document.body.style.overflow = "hidden";
+
+      loader?.classList.remove("opacity-0");
+      img.classList.add("opacity-0", "scale-95");
+      img.classList.remove("opacity-100", "scale-100");
+      caption?.classList.add("opacity-0", "translate-y-2");
+      caption?.classList.remove("opacity-100", "translate-y-0");
+
+      const newImg = new Image();
+      newImg.src = href;
+      newImg.onload = () => {
+        if (!modal?.classList.contains("pointer-events-auto")) return;
+
+        img.src = href;
+        img.alt = desc;
+        loader?.classList.add("opacity-0");
+        img.classList.remove("opacity-0", "scale-95");
+        img.classList.add("opacity-100", "scale-100");
+
+        if (desc && caption) {
+          caption.innerHTML = desc;
+          caption.classList.remove("opacity-0", "translate-y-2");
+          caption.classList.add("opacity-100", "translate-y-0");
+        } else if (caption) {
+          caption.classList.add("opacity-0");
+        }
+      };
+      newImg.onerror = () => loader?.classList.add("opacity-0");
+    }
+
+    function closeModal() {
+      modal?.classList.remove("pointer-events-auto", "opacity-100");
+      modal?.classList.add("pointer-events-none", "opacity-0");
+      document.body.style.overflow = "";
+      setTimeout(() => {
+        if (modal?.classList.contains("opacity-0")) {
+          img.src = "";
+          img.classList.add("opacity-0", "scale-95");
+          img.classList.remove("opacity-100", "scale-100");
+        }
+      }, 300);
+    }
+
+    closeBtn?.addEventListener("click", closeModal);
+    backdrop?.addEventListener("click", closeModal);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !modal.classList.contains("pointer-events-none"))
+        closeModal();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey)
+        return;
+
+      const link = (e.target as HTMLElement).closest("a") as HTMLAnchorElement;
+      if (!link || !link.href) return;
+
+      const isImgLink = /\.(jpg|jpeg|png|gif|webp)$/i.test(
+        link.getAttribute("href") || "",
+      );
+      if (isImgLink) {
+        e.preventDefault();
+
+        const card = link.closest(".group, .product-card, article, li");
+        let title = card?.querySelector("h3, h4")?.textContent?.trim() || "";
+
+        if (!title) {
+          const ignoreWords = ["ampliar", "foto", "zoom", "imagem"];
+          const linkTitle = (link.title || "").trim();
+          const imgAlt = (link.querySelector("img")?.alt || "").trim();
+
+          if (
+            linkTitle &&
+            !ignoreWords.some((w) => linkTitle.toLowerCase().includes(w))
+          ) {
+            title = linkTitle;
+          } else if (
+            imgAlt &&
+            !ignoreWords.some((w) => imgAlt.toLowerCase().includes(w))
+          ) {
+            title = imgAlt;
+          }
+        }
+
+        openModal(link.href, title);
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initLightbox);
+  } else {
+    initLightbox();
+  }
+  document.addEventListener("astro:page-load", initLightbox);
+</script>

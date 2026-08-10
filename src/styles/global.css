@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/* ============================================================
+   TEMA DO SITE
+   Os tokens --dg-* têm valores padrão aqui e são SOBRESCRITOS
+   em runtime pelas cores definidas em src/data/site.ts (Layout).
+   Para o Tailwind gerar as utilitárias, mantenha o bloco @theme.
+   ============================================================ */
+:root {
+  --dg-primary: #00ba34;
+  --dg-primary-hover: #009e2c;
+  --dg-accent: #f06100;
+  --dg-dark: #021e0a;
+  --dg-bg: #f2f5f3;
+  --dg-card: #ffffff;
+}
+
+@theme inline {
+  --color-primary: var(--dg-primary);
+  --color-primary-hover: var(--dg-primary-hover);
+  --color-accent: var(--dg-accent);
+  --color-dark: var(--dg-dark);
+  --color-bg: var(--dg-bg);
+  --color-card: var(--dg-card);
+
+  /* Cores neutras (comuns a qualquer cliente) */
+  --color-ink: #1f2937;
+  --color-muted: #6b7280;
+
+  /* Fontes (troque as importações no Layout e os nomes aqui) */
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-heading: "Outfit", system-ui, sans-serif;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background-color: var(--color-bg);
+}
+
+::selection {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   ANIMAÇÃO DE SCROLL (reveal)
+   Ativada só com JS (html.js) para nunca esconder conteúdo
+   se o JavaScript estiver desabilitado.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+
+  html.js .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .reveal {
+    transition: none;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
