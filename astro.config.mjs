@@ -1,12 +1,10 @@
 ﻿import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
-import sitemap from '@astrojs/sitemap';
 
+// Site modelo fictício para portfólio — sem vínculo com empresa real
 export default defineConfig({
-  site: 'https://mayck-eduardo.github.io/template-A',
-  base: '/dist',
-  outDir: './docs',
-  integrations: [sitemap()],
+  site: 'https://mayck-eduardo.github.io',
+  base: '/template-A/dist',
   vite: {
     plugins: [tailwindcss()],
   },
